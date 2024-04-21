@@ -113,8 +113,7 @@ func _physics_process(delta):
 		# there is a large number of backlogged requests
 		self._make_next_request()
 		
-func event(name: String, metadata: Dictionary = {}, metrics: Dictionary = {}, level: String = "", ts: String = "") -> void:
-	
+func event(name: String, metadata: Dictionary = {}, level: String = "", ts: String = "") -> void:
 	if not self._enabled:
 		return
 	
@@ -128,11 +127,30 @@ func event(name: String, metadata: Dictionary = {}, metrics: Dictionary = {}, le
 	
 	e.name = name
 	e.level = level
-	e.metadata = metadata
-	e.metrics = metrics
+	
+	var string_metadata := {}
+	var number_metadata := {}
+	
+	for key in metadata:
+		var value = metadata[key]
+		if _is_numeric(value):
+			number_metadata[key] = value
+		else:
+			string_metadata[key] = str(value)
+			
+	e.metadata = string_metadata
+	e.metrics = number_metadata
 	e.ts = ts
 	
 	self._queue_event(e)
+
+func _is_numeric(value) -> bool:
+	if typeof(value) == TYPE_INT:
+		return true
+	if typeof(value) == TYPE_FLOAT:
+		return true
+	
+	return false
 
 func _queue_event(e: _Event) -> void:
 	_event_buffer.append(e)
@@ -144,9 +162,19 @@ func _process_event_queue() -> void:
 		return
 	if _event_buffer.is_empty():
 		return
+	
 	self._log("Processing Event Queue ...", true)
 
-	var payload = {"events": []}
+	var payload = {
+		"events": [],
+		"shared": {
+			"uid": self._user,
+			"app_v": self.app_version,
+			"platform": self.platform,
+			"platform_v": self.platform_version,
+		},
+	}
+	
 	for e in _event_buffer:
 		payload["events"].append(self._format_event_for_request(e))
 	
@@ -158,12 +186,8 @@ func _clear_event_buffer():
 
 func _format_event_for_request(e: _Event) -> Dictionary:
 	return {
-		"uid": self._user,
 		"name": e.name,
 		"lvl": e.level,
-		"app_v": self.app_version,
-		"platform": self.platform,
-		"platform_v": self.platform_version,
 		"metadata": JSON.stringify(e.metadata),
 		"metrics": JSON.stringify(e.metrics),
 		"ts": e.ts,
@@ -286,7 +310,7 @@ func _exit_tree():
 	self._process_event_queue()
 	
 	# if we're connected, wait until one last http request is finished
-	if self._connected:
+	if self._connected and self._http_connection_count > 0:
 		await self.http_request_completed
 	
-	# todo if there are any pending http requests, write them to disk
+	# todo if there are any remaining http requests, write them to disk

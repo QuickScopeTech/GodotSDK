@@ -9,9 +9,9 @@ This SDK allows you to get up and running with QuickScope in Godot within minute
 * [Getting Started](#getting-started)
   + [Installation](#installation)
   + [Configuration](#configuration)
-	+ [Advanced](#configuration-advanced)
+	+ [Advanced](#advanced)
 * [Events](#events)
-	+ [Structure](#events-structure)
+	+ [Structure](#structure)
 * [Support](#support)
 * [License](#license)
 
@@ -55,8 +55,6 @@ Once the SDK has been initialized there are a few other options which can be cha
 
 | Name                       | Default value         | Description |
 | ---------------------------|-----------------------|-------------|
-|platform|`OS.get_name()`|The OS name, e.g. `Windows` |
-|platform_version|`OS.get_version()`|The OS version, e.g. `10.0.19045` |
 |default_level|"none"|Used to set a default "level" parameter for events. This can be updated everytime a new level is loaded to add more rich context.|
 
 An example of updating the default level when a new level has been loaded could look like this:
@@ -71,7 +69,7 @@ func _ready():
 
 ```
 
-Levels can also be used for non-gameplay categorization. Values could be something like "main_menu", "settings", "gameover_screen" etc. It is just a field to help determine where the event happened.
+Levels can also be used for non-gameplay categorization. Values could be something like `main_menu`, `settings`, `gameover_screen` etc. It is just a field to help determine where the event happened.
 
 
 # Events
@@ -82,7 +80,11 @@ Events are at the core of QuickScope. They give you insight into how your player
 func on_player_died(player: Player, killed_by: Enemy):
 	# handle animations etc...
 	# track this event
-	QuickScopeSDK.event("player_died", {"killer": killed_by.name}, {"player_lvl": player.level, "killer_hp": killed_by.health})
+	QuickScopeSDK.event("player_died", {
+		"killer": killed_by.name, 
+		"player_lvl": player.level, 
+		"killer_hp": killed_by.health,
+	})
 	# reset game state, show gameover screen etc..
 	
 ```
@@ -99,9 +101,9 @@ This is just an example of how one line of code can give you visibility into how
 
 ## Structure
 
-Events are created with 3 main arguments: Name, Metadata and Metrics. The full event function signature looks like this:
+Events are created with 2 primary arguments: Name and Metadata. The full event function signature looks like this:
 
-`event(name: String, metadata: Dictionary = {}, metrics: Dictionary = {}, level: String = "", ts: String = "")`
+`event(name: String, metadata: Dictionary = {}, level: String = "", ts: String = "")`
 
 ### Name
 
@@ -109,11 +111,9 @@ Name is the primary way you define an event. Some examples could be `player_died
 
 ### Metadata
 
-Metadata allows you to store key value strings with an event. This is useful to provide more context around what triggered the event. We recommend trying to keep metadata limited to only the most important information relating to the event being triggered. For example, if the event is about a player picking up the item, relevant metadata might be the item being picked up and its rarity. As metadata is limited to strings only, we can store the quantity and value of the item picked up in Metrics.
+Metadata allows you to store extra context for the event as key value pairs. We recommend trying to keep metadata limited to only the most important information relating to the event being triggered. For example, if the event is about a player picking up an item, relevant metadata might be the item name, rarity, quantity and price. 
 
-### Metrics
-
-Metrics allow you to store key value numbers with an event. Similar to metadata, this allows you to give even more actionable context to an event. For our item being picked up example, we could store the numeric quantity and value of the item.
+The SDK will automatically determine which metadata is numeric and what can be used as a metric when saving the event in QuickScope. If you know ahead of time that you need specific context to be a metric, ensure its cast to either an int or a float. By default anything else will be cast to a string and attached as traditional metadata.
 
 ### Examples
 
@@ -122,20 +122,45 @@ Putting it all together, here are some example events:
 ```gdscript
 
 # player picking up an item
-QuickScopeSDK.event(GameEvent.ITEM_PICKED_UP, {"item_name": item.name, "item_rarity": item.rarity}, {"item_value": item.value, "item_quantity": item.quantity})
+QuickScopeSDK.event(GameEvent.ITEM_PICKED_UP, {
+	"item_name": item.name, 
+	"item_rarity": item.rarity, 
+	"item_value": item.value, 
+	"item_quantity": item.quantity,
+})
 
-# player killing enemies in the badlands
+# player killing enemies on the badlands map
 QuickScopeSDK.default_level = "badlands"
-QuickScopeSDK.event(GameEvent.ENEMY_DEFEATED, {"enemy": enemy.name, "weapon": player.weapon.name}, {"player_level": player.level, "player_hp": player.hp })
+QuickScopeSDK.event(GameEvent.ENEMY_DEFEATED, {
+	"enemy": enemy.name, 
+	"weapon": player.weapon.name, 
+	"player_level": player.level, 
+	"player_hp": player.hp,
+})
 
-# if your game has a large number of enemies being killed at once, this event could also be aggregated
-QuickScopeSDK.event(GameEvent.ENEMIES_DEFEATED, {"enemy": enemy.type, "weapon": player.weapon.name}, {"enemies_killed": len(enemies_killed), "player_level": player.level, "player_hp": player.hp })
+# if your game has a large number of enemies being killed at once,
+# this event could also be aggregated
+QuickScopeSDK.event(GameEvent.ENEMIES_DEFEATED, {
+	"enemy": enemy.type, 
+	"weapon": player.weapon.name, 
+	"enemies_killed": len(enemies_killed), 
+	"player_level": player.level, 
+	"player_hp": player.hp,
+})
 
 # player making an in app purchase
 QuickScopeSDK.default_level = "iap_store"
-QuickScopeSDK.event(GameEvent.IAP_STARTED, {"iap_item": item.id}, {"iap_value": item.price})
-# iap flow ...
-QuickScopeSDK.event(GameEvent.IAP_COMPLETE, {"iap_item": item.id}, {"iap_value": item.price})
+QuickScopeSDK.event(GameEvent.IAP_STARTED, {
+	"iap_item": item.id, 
+	"iap_value": item.price,
+	"iap_checkout_id": checkout.id,
+})
+# purchase happens here ...
+QuickScopeSDK.event(GameEvent.IAP_COMPLETE, {
+	"iap_item": item.id, 
+	"iap_value": item.price,
+	"iap_checkout_id": checkout.id,
+})
 
 ```
 

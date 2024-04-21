@@ -23,4 +23,4 @@ const IAP_COMPLETE = "iap_complete"
 
 # Example Usage:
 # QuickScopeSDK.event(GameEvent.ENEMY_DEFEATED, {"enemy": enemy.name})
-# QuickScopeSDK.event(GameEvent.PLAYER_GAINED_COINS, {}, {"coins": coins_gained})
+# QuickScopeSDK.event(GameEvent.PLAYER_GAINED_COINS, {"coins": coins_gained})
