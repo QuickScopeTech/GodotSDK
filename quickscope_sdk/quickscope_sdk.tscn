@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ctvtkg8btq7er"]
+
+[ext_resource type="Script" path="res://addons/quickscope_sdk/quickscope_sdk.gd" id="1_wq4tm"]
+
+[node name="QuickScopeSDK" type="Node"]
+script = ExtResource("1_wq4tm")
