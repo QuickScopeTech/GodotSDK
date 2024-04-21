@@ -27,7 +27,7 @@ The Godot SDK is compatible with `Godot 4.0` and above.
 	+ This will add an autoload called `QuickScopeSDK`. This is how you can interact with the SDK from anywhere in your project. If you disable or remove this autoload, the SDK will not function.
 4. In an autoload or entry point into your game call the SDK `init` function with your projects ID.
 ```gdscript
-  func _ready():
+func _ready():
 	QuickScopeSDK.init("01HVWT4VF7AH1234567890")
 ```
 5. 🎉 Start gaining insight into how people play your game!
@@ -105,7 +105,7 @@ Events are created with 3 main arguments: Name, Metadata and Metrics. The full e
 
 ### Name
 
-Name is the primary way you define an event. Some examples could be `player_died`, `level_completed`, `enemy_killed`, `boss_defeated` etc. but there is no restriction or limit to the number of events you create. We recommend you create a global constants file to define all your games events. See the [example quickscope events file](https://github.com/QuickScopeTech/GodotSDK/event_reference_example.gd) for a reference.
+Name is the primary way you define an event. Some examples could be `player_died`, `level_completed`, `enemy_killed`, `boss_defeated` etc. but there is no restriction or limit to the number of events you create. We recommend you create a global constants file to define all your games events. See the [example quickscope events file](https://github.com/QuickScopeTech/GodotSDK/blob/main/event_reference_example.gd) for a reference.
 
 ### Metadata
 
