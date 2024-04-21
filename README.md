@@ -62,7 +62,7 @@ Once the SDK has been initialized there are a few other options which can be cha
 An example of updating the default level when a new level has been loaded could look like this:
 
 ```gdscript
-  func _ready():
+func _ready():
 	# Set the default level event to the new level or map which was loaded
 	QuickScopeSDK.default_level = "rainbow_road"
 	
@@ -79,7 +79,7 @@ Levels can also be used for non-gameplay categorization. Values could be somethi
 Events are at the core of QuickScope. They give you insight into how your players are interacting with your game. As every game is different, QuickScope doesn't come with a list of predefined events, instead you're free to fully customize how you want to track behavior.
 
 ```gdscript
-  func on_player_died(player: Player, killed_by: Enemy):
+func on_player_died(player: Player, killed_by: Enemy):
 	# handle animations etc...
 	# track this event
 	QuickScopeSDK.event("player_died", {"killer": killed_by.name}, {"player_lvl": player.level, "killer_hp": killed_by.health})
